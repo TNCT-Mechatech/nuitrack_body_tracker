@@ -6,7 +6,7 @@ add_compile_options(-std=c++11)
 
 # For nuitrack
 # add_compile_options(-std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0)
-set(NUITRACK_SDK_PATH /home/system/sdk/NuitrackSDK) 
+set(NUITRACK_SDK_PATH /home/alex/nuitrack-sdk) 
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   body_tracker_msgs
   std_msgs
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -117,6 +118,7 @@ catkin_package(
     visualization_msgs
     std_msgs 
     body_tracker_msgs
+    tf2_ros
 #  DEPENDS system_lib
 )
 

@@ -48,7 +48,6 @@
 
 // If Camera mounted on Pan/Tilt head
 //#include "sensor_msgs/JointState.h"
-#include "dynamixel_msgs/JointState.h"
 
 //For Nuitrack SDK
 #include "nuitrack/Nuitrack.h"
@@ -62,6 +61,9 @@
 // For Point Cloud publishing
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 // #include <pcl/point_types.h>
 
 const bool ENABLE_PUBLISHING_FRAMES = true;
@@ -533,18 +535,22 @@ namespace nuitrack_body_tracker
         skeleton_data.joint_position_head.x = skeleton.joints[JOINT_HEAD].real.z / 1000.0;
         skeleton_data.joint_position_head.y = skeleton.joints[JOINT_HEAD].real.x / 1000.0;
         skeleton_data.joint_position_head.z = skeleton.joints[JOINT_HEAD].real.y / 1000.0;
+        PublishFrame("head", skeleton.joints[JOINT_HEAD].real, skeleton.joints[JOINT_HEAD].orient);
 
         skeleton_data.joint_position_neck.x = skeleton.joints[JOINT_NECK].real.z / 1000.0;
         skeleton_data.joint_position_neck.y = skeleton.joints[JOINT_NECK].real.x / 1000.0;
         skeleton_data.joint_position_neck.z = skeleton.joints[JOINT_NECK].real.y / 1000.0;
+        PublishFrame("neck", skeleton.joints[JOINT_NECK].real, skeleton.joints[JOINT_NECK].orient);
 
         skeleton_data.joint_position_spine_top.x = skeleton.joints[JOINT_TORSO].real.z / 1000.0;
         skeleton_data.joint_position_spine_top.y = skeleton.joints[JOINT_TORSO].real.x / 1000.0;
         skeleton_data.joint_position_spine_top.z = skeleton.joints[JOINT_TORSO].real.y / 1000.0;
+        PublishFrame("torso", skeleton.joints[JOINT_TORSO].real, skeleton.joints[JOINT_TORSO].orient);
 
         skeleton_data.joint_position_spine_mid.x = skeleton.joints[JOINT_WAIST].real.z / 1000.0;
         skeleton_data.joint_position_spine_mid.y = skeleton.joints[JOINT_WAIST].real.x / 1000.0;
         skeleton_data.joint_position_spine_mid.z = skeleton.joints[JOINT_WAIST].real.y / 1000.0;
+        PublishFrame("waist", skeleton.joints[JOINT_WAIST].real, skeleton.joints[JOINT_WAIST].orient);
 
         skeleton_data.joint_position_spine_bottom.x = 0.0;
         skeleton_data.joint_position_spine_bottom.y = 0.0;
@@ -553,26 +559,32 @@ namespace nuitrack_body_tracker
         skeleton_data.joint_position_left_shoulder.x = skeleton.joints[JOINT_LEFT_SHOULDER].real.z / 1000.0;
         skeleton_data.joint_position_left_shoulder.y = skeleton.joints[JOINT_LEFT_SHOULDER].real.x / 1000.0;
         skeleton_data.joint_position_left_shoulder.z = skeleton.joints[JOINT_LEFT_SHOULDER].real.y / 1000.0;
+        PublishFrame("left_shoulder", skeleton.joints[JOINT_LEFT_SHOULDER].real, skeleton.joints[JOINT_LEFT_SHOULDER].orient);
 
         skeleton_data.joint_position_left_elbow.x = skeleton.joints[JOINT_LEFT_ELBOW].real.z / 1000.0;
         skeleton_data.joint_position_left_elbow.y = skeleton.joints[JOINT_LEFT_ELBOW].real.x / 1000.0;
         skeleton_data.joint_position_left_elbow.z = skeleton.joints[JOINT_LEFT_ELBOW].real.y / 1000.0;
+        PublishFrame("left_elbow", skeleton.joints[JOINT_LEFT_ELBOW].real, skeleton.joints[JOINT_LEFT_ELBOW].orient);
 
         skeleton_data.joint_position_left_hand.x = skeleton.joints[JOINT_LEFT_HAND].real.z / 1000.0;
         skeleton_data.joint_position_left_hand.y = skeleton.joints[JOINT_LEFT_HAND].real.x / 1000.0;
         skeleton_data.joint_position_left_hand.z = skeleton.joints[JOINT_LEFT_HAND].real.y / 1000.0;
+        PublishFrame("left_hand", skeleton.joints[JOINT_LEFT_HAND].real, skeleton.joints[JOINT_LEFT_HAND].orient);
 
         skeleton_data.joint_position_right_shoulder.x = skeleton.joints[JOINT_RIGHT_SHOULDER].real.z / 1000.0;
         skeleton_data.joint_position_right_shoulder.y = skeleton.joints[JOINT_RIGHT_SHOULDER].real.x / 1000.0;
         skeleton_data.joint_position_right_shoulder.z = skeleton.joints[JOINT_RIGHT_SHOULDER].real.y / 1000.0;
+        PublishFrame("right_shoulder", skeleton.joints[JOINT_RIGHT_SHOULDER].real, skeleton.joints[JOINT_RIGHT_SHOULDER].orient);
 
         skeleton_data.joint_position_right_elbow.x = skeleton.joints[JOINT_RIGHT_ELBOW].real.z / 1000.0;
         skeleton_data.joint_position_right_elbow.y = skeleton.joints[JOINT_RIGHT_ELBOW].real.x / 1000.0;
         skeleton_data.joint_position_right_elbow.z = skeleton.joints[JOINT_RIGHT_ELBOW].real.y / 1000.0;
+        PublishFrame("right_elbow", skeleton.joints[JOINT_RIGHT_ELBOW].real, skeleton.joints[JOINT_RIGHT_ELBOW].orient);
 
         skeleton_data.joint_position_right_hand.x = skeleton.joints[JOINT_RIGHT_HAND].real.z / 1000.0;
         skeleton_data.joint_position_right_hand.y = skeleton.joints[JOINT_RIGHT_HAND].real.x / 1000.0;
         skeleton_data.joint_position_right_hand.z = skeleton.joints[JOINT_RIGHT_HAND].real.y / 1000.0;
+        PublishFrame("right_hand", skeleton.joints[JOINT_RIGHT_HAND].real, skeleton.joints[JOINT_RIGHT_HAND].orient);
 
         // Hand:  open (0), grasping (1), waving (2)
         /* TODO - see which of these actually work
@@ -646,6 +658,20 @@ namespace nuitrack_body_tracker
           skeleton_data.joint_position_spine_mid.y,
           skeleton_data.joint_position_spine_mid.z,
           0.0, 1.0, 0.0 ); // r,g,b
+        
+        PublishMarker(
+          6, // ID
+          skeleton_data.joint_position_right_hand.x,
+          skeleton_data.joint_position_right_hand.y,
+          skeleton_data.joint_position_right_hand.z,
+          0.0, 1.0, 0.0 ); // r,g,b
+          
+        PublishMarker(
+          7, // ID
+          skeleton_data.joint_position_left_hand.x,
+          skeleton_data.joint_position_left_hand.y,
+          skeleton_data.joint_position_left_hand.z,
+          0.0, 1.0, 0.0 ); // r,g,b  
 
       }
 
@@ -672,6 +698,30 @@ namespace nuitrack_body_tracker
           userGestures_[i].type, userGestures_[i].userId);
 
       }
+
+    }
+
+    void PublishFrame(const std::string& name, const tdv::nuitrack::Vector3& pos, const tdv::nuitrack::Orientation& orient) {
+      static tf2_ros::TransformBroadcaster br;
+      geometry_msgs::TransformStamped transformStamped;
+      if (pos.x == 0) {
+        return;
+      }
+      transformStamped.header.stamp = ros::Time::now();
+      transformStamped.header.frame_id = "world";
+      transformStamped.child_frame_id = name;
+      transformStamped.transform.translation.x = pos.x / 1000.0f;
+      transformStamped.transform.translation.y = pos.y / 1000.0f;
+      transformStamped.transform.translation.z = pos.z / 1000.0f;
+      auto& mat = orient.matrix;
+      tf2::Matrix3x3 m(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8]);
+      tf2::Quaternion q;
+      m.getRotation(q);
+      transformStamped.transform.rotation.x = q.x();
+      transformStamped.transform.rotation.y = q.y();
+      transformStamped.transform.rotation.z = q.z();
+      transformStamped.transform.rotation.w = q.w();
+      br.sendTransform(transformStamped);
 
     }
 
@@ -851,6 +901,7 @@ namespace nuitrack_body_tracker
       std::cout << "Nuitrack: SkeletonTracker::create()" << std::endl;
       skeletonTracker_ = tdv::nuitrack::SkeletonTracker::create();
       // Bind to event update skeleton tracker
+      skeletonTracker_->setNumActiveUsers(1);
       skeletonTracker_->connectOnUpdate(std::bind(
         &nuitrack_body_tracker_node::onSkeletonUpdate, this, std::placeholders::_1));
   
