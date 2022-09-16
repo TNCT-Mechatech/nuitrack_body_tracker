@@ -329,20 +329,20 @@ namespace nuitrack_body_tracker
 
         ///////////////////////////////////////////////////////////////
         // 2D position for camera servo tracking
-        const float ASTRA_MINI_FOV_X = -1.047200; // (60 degrees horizontal)
-        const float ASTRA_MINI_FOV_Y = -0.863938; // (49.5 degrees vertical)
+        const float REALSENSE_D435_FOV_X = -1.50098; // (60 degrees horizontal)
+        const float REALSENSE_D435_FOV_Y = -0.994838; // (49.5 degrees vertical)
 
         // Convert projection to radians
         // proj is 0.0 (left) --> 1.0 (right)
         geometry_msgs::Pose2D track2d;
-        track2d.x = (skeleton.joints[KEY_JOINT_TO_TRACK].proj.x - 0.5) * ASTRA_MINI_FOV_X;
-        track2d.y = (skeleton.joints[KEY_JOINT_TO_TRACK].proj.y - 0.5) * ASTRA_MINI_FOV_Y;
+        track2d.x = (skeleton.joints[KEY_JOINT_TO_TRACK].proj.x - 0.5) * REALSENSE_D435_FOV_X;
+        track2d.y = (skeleton.joints[KEY_JOINT_TO_TRACK].proj.y - 0.5) * REALSENSE_D435_FOV_Y;
         track2d.theta = (float)skeleton.id;
 
         person_data.position2d.x = 
-          (skeleton.joints[KEY_JOINT_TO_TRACK].proj.x - 0.5) * ASTRA_MINI_FOV_X;
+          (skeleton.joints[KEY_JOINT_TO_TRACK].proj.x - 0.5) * REALSENSE_D435_FOV_X;
         person_data.position2d.y = 
-          (skeleton.joints[KEY_JOINT_TO_TRACK].proj.y - 0.5) * ASTRA_MINI_FOV_Y;
+          (skeleton.joints[KEY_JOINT_TO_TRACK].proj.y - 0.5) * REALSENSE_D435_FOV_Y;
         person_data.position2d.z = skeleton.joints[KEY_JOINT_TO_TRACK].proj.z / 1000.0;
 
         
@@ -454,8 +454,8 @@ namespace nuitrack_body_tracker
                     
                     float face_center_proj_x = face_left + (face_width / 2.0);
                     float face_center_proj_y = face_top + (face_height / 2.0);
-                    person_data.face_center.x = (face_center_proj_x - 0.5) * ASTRA_MINI_FOV_X;
-                    person_data.face_center.y =  (face_center_proj_y - 0.5) * ASTRA_MINI_FOV_Y;
+                    person_data.face_center.x = (face_center_proj_x - 0.5) * REALSENSE_D435_FOV_X;
+                    person_data.face_center.y =  (face_center_proj_y - 0.5) * REALSENSE_D435_FOV_Y;
                     // just use the skeleton location 
                     person_data.face_center.z = skeleton.joints[JOINT_HEAD].real.z / 1000.0;
                     
@@ -777,8 +777,8 @@ namespace nuitrack_body_tracker
 
     void publishJoint2D(const char *name, const tdv::nuitrack::Joint& joint)
     {
-      const float ASTRA_MINI_FOV_X =  1.047200; // (60 degrees horizontal)
-      const float ASTRA_MINI_FOV_Y = -0.863938; // (49.5 degrees vertical)
+      const float REALSENSE_D435_FOV_X =  1.50098; // (60 degrees horizontal)
+      const float REALSENSE_D435_FOV_Y = -0.994838; // (49.5 degrees vertical)
       if (joint.confidence < 0.15)
       {
         return;  // ignore low confidence joints
@@ -786,8 +786,8 @@ namespace nuitrack_body_tracker
 
       // Convert projection to radians
       // proj is 0.0 (left) --> 1.0 (right)
-      float radians_x = (joint.proj.x - 0.5) * ASTRA_MINI_FOV_X;
-      float radians_y = (joint.proj.y - 0.5) * ASTRA_MINI_FOV_Y;
+      float radians_x = (joint.proj.x - 0.5) * REALSENSE_D435_FOV_X;
+      float radians_y = (joint.proj.y - 0.5) * REALSENSE_D435_FOV_Y;
       std::cout << std::setprecision(4) << std::setw(7) 
         << "Nuitrack: " << name  
         << " x: " << joint.proj.x << " (" << radians_x << ")  y: " 
