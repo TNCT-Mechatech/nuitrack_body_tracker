@@ -6,7 +6,7 @@ add_compile_options(-std=c++11)
 
 # For nuitrack
 # add_compile_options(-std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0)
-set(NUITRACK_SDK_PATH /home/alex/nuitrack-sdk) 
+set(NUITRACK_SDK_PATH /home/tnct-mechatech/sdk/nuitrack-sdk/nuitrack-sdk-0.36.3) 
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
