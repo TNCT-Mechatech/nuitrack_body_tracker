@@ -5,6 +5,8 @@
     <param name="camera_color_frame" value="nuitrack_camera_link"/> 
  
   </node>
-
+<!-- 
+  <arg name="rvizconfig" default="$(find nuitrack_body_tracker)/rviz/marker.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" /> -->
 </launch>
 
