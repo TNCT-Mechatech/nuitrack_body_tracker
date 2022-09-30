@@ -330,6 +330,8 @@ namespace nuitrack_body_tracker
         person_data.age = 0;
         person_data.gender = 0;
         person_data.name = "";
+        //  confidence
+        person_data.confidence = tracking_confidence;
 
         //if(skeleton.id != last_id_)
         {
