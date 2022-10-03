@@ -55,6 +55,7 @@
 #include "nuitrack/Nuitrack.h"
 #define KEY_JOINT_TO_TRACK    JOINT_LEFT_COLLAR // JOINT_TORSO // JOINT_NECK
 #define MINIMUM_CONFIDENCE_VALUE 0.20 //  20%
+#define ACTIVE_USER_NUM 5
 
 // For Face JSON parsing
 #include <boost/property_tree/ptree.hpp>
@@ -293,7 +294,9 @@ namespace nuitrack_body_tracker
 
       // process skeletons for each user found
       auto skeletons = userSkeletons->getSkeletons();
-      for (auto skeleton: skeletons)
+      ROS_INFO("COUNT: %d", (int)skeletons.size());
+
+      for (const auto& skeleton : skeletons)
       {
         // std::cout << "Nuitrack: Skeleton.id = " << skeleton.id << std::endl;
 
@@ -544,58 +547,58 @@ namespace nuitrack_body_tracker
         person_data.position3d.z = skeleton.joints[KEY_JOINT_TO_TRACK].real.y / 1000.0;
  
        
-        skeleton_data.joint_position_head.x = skeleton.joints[JOINT_HEAD].real.z / 1000.0;
-        skeleton_data.joint_position_head.y = skeleton.joints[JOINT_HEAD].real.x / 1000.0;
-        skeleton_data.joint_position_head.z = skeleton.joints[JOINT_HEAD].real.y / 1000.0;
+        skeleton_data.joint_position_head.x = (skeleton.joints[JOINT_HEAD].proj.x - 0.5);
+        skeleton_data.joint_position_head.y = (skeleton.joints[JOINT_HEAD].proj.y - 0.5);
+        skeleton_data.joint_position_head.z = skeleton.joints[JOINT_HEAD].proj.z / 1000.0;
         PublishFrame("head", skeleton.joints[JOINT_HEAD].real, skeleton.joints[JOINT_HEAD].orient);
 
-        skeleton_data.joint_position_neck.x = skeleton.joints[JOINT_NECK].real.z / 1000.0;
-        skeleton_data.joint_position_neck.y = skeleton.joints[JOINT_NECK].real.x / 1000.0;
-        skeleton_data.joint_position_neck.z = skeleton.joints[JOINT_NECK].real.y / 1000.0;
+        skeleton_data.joint_position_neck.x = (skeleton.joints[JOINT_NECK].proj.x - 0.5);
+        skeleton_data.joint_position_neck.y = (skeleton.joints[JOINT_NECK].proj.y - 0.5);
+        skeleton_data.joint_position_neck.z = skeleton.joints[JOINT_NECK].proj.z / 1000.0;
         PublishFrame("neck", skeleton.joints[JOINT_NECK].real, skeleton.joints[JOINT_NECK].orient);
 
-        skeleton_data.joint_position_spine_top.x = skeleton.joints[JOINT_TORSO].real.z / 1000.0;
-        skeleton_data.joint_position_spine_top.y = skeleton.joints[JOINT_TORSO].real.x / 1000.0;
-        skeleton_data.joint_position_spine_top.z = skeleton.joints[JOINT_TORSO].real.y / 1000.0;
+        skeleton_data.joint_position_spine_top.x = (skeleton.joints[JOINT_TORSO].proj.x - 0.5);
+        skeleton_data.joint_position_spine_top.y = (skeleton.joints[JOINT_TORSO].proj.y - 0.5);
+        skeleton_data.joint_position_spine_top.z = skeleton.joints[JOINT_TORSO].proj.z / 1000.0;
         PublishFrame("torso", skeleton.joints[JOINT_TORSO].real, skeleton.joints[JOINT_TORSO].orient);
 
-        skeleton_data.joint_position_spine_mid.x = skeleton.joints[JOINT_WAIST].real.z / 1000.0;
-        skeleton_data.joint_position_spine_mid.y = skeleton.joints[JOINT_WAIST].real.x / 1000.0;
-        skeleton_data.joint_position_spine_mid.z = skeleton.joints[JOINT_WAIST].real.y / 1000.0;
+        skeleton_data.joint_position_spine_mid.x = (skeleton.joints[JOINT_WAIST].proj.x - 0.5);
+        skeleton_data.joint_position_spine_mid.y = (skeleton.joints[JOINT_WAIST].proj.y - 0.5);
+        skeleton_data.joint_position_spine_mid.z = skeleton.joints[JOINT_WAIST].proj.z / 1000.0;
         PublishFrame("waist", skeleton.joints[JOINT_WAIST].real, skeleton.joints[JOINT_WAIST].orient);
 
         skeleton_data.joint_position_spine_bottom.x = 0.0;
         skeleton_data.joint_position_spine_bottom.y = 0.0;
         skeleton_data.joint_position_spine_bottom.z = 0.0;
 
-        skeleton_data.joint_position_left_shoulder.x = skeleton.joints[JOINT_LEFT_SHOULDER].real.z / 1000.0;
-        skeleton_data.joint_position_left_shoulder.y = skeleton.joints[JOINT_LEFT_SHOULDER].real.x / 1000.0;
-        skeleton_data.joint_position_left_shoulder.z = skeleton.joints[JOINT_LEFT_SHOULDER].real.y / 1000.0;
+        skeleton_data.joint_position_left_shoulder.x = (skeleton.joints[JOINT_LEFT_SHOULDER].proj.x - 0.5);
+        skeleton_data.joint_position_left_shoulder.y = (skeleton.joints[JOINT_LEFT_SHOULDER].proj.y - 0.5);
+        skeleton_data.joint_position_left_shoulder.z = skeleton.joints[JOINT_LEFT_SHOULDER].proj.z / 1000.0;
         PublishFrame("left_shoulder", skeleton.joints[JOINT_LEFT_SHOULDER].real, skeleton.joints[JOINT_LEFT_SHOULDER].orient);
 
-        skeleton_data.joint_position_left_elbow.x = skeleton.joints[JOINT_LEFT_ELBOW].real.z / 1000.0;
-        skeleton_data.joint_position_left_elbow.y = skeleton.joints[JOINT_LEFT_ELBOW].real.x / 1000.0;
-        skeleton_data.joint_position_left_elbow.z = skeleton.joints[JOINT_LEFT_ELBOW].real.y / 1000.0;
+        skeleton_data.joint_position_left_elbow.x = (skeleton.joints[JOINT_LEFT_ELBOW].proj.x - 0.5);
+        skeleton_data.joint_position_left_elbow.y = (skeleton.joints[JOINT_LEFT_ELBOW].proj.y - 0.5);
+        skeleton_data.joint_position_left_elbow.z = skeleton.joints[JOINT_LEFT_ELBOW].proj.z / 1000.0;
         PublishFrame("left_elbow", skeleton.joints[JOINT_LEFT_ELBOW].real, skeleton.joints[JOINT_LEFT_ELBOW].orient);
 
-        skeleton_data.joint_position_left_hand.x = skeleton.joints[JOINT_LEFT_HAND].real.z / 1000.0;
-        skeleton_data.joint_position_left_hand.y = skeleton.joints[JOINT_LEFT_HAND].real.x / 1000.0;
-        skeleton_data.joint_position_left_hand.z = skeleton.joints[JOINT_LEFT_HAND].real.y / 1000.0;
+        skeleton_data.joint_position_left_hand.x = (skeleton.joints[JOINT_LEFT_HAND].proj.x - 0.5);
+        skeleton_data.joint_position_left_hand.y = (skeleton.joints[JOINT_LEFT_HAND].proj.y - 0.5);
+        skeleton_data.joint_position_left_hand.z = skeleton.joints[JOINT_LEFT_HAND].proj.z / 1000.0;
         PublishFrame("left_hand", skeleton.joints[JOINT_LEFT_HAND].real, skeleton.joints[JOINT_LEFT_HAND].orient);
 
-        skeleton_data.joint_position_right_shoulder.x = skeleton.joints[JOINT_RIGHT_SHOULDER].real.z / 1000.0;
-        skeleton_data.joint_position_right_shoulder.y = skeleton.joints[JOINT_RIGHT_SHOULDER].real.x / 1000.0;
-        skeleton_data.joint_position_right_shoulder.z = skeleton.joints[JOINT_RIGHT_SHOULDER].real.y / 1000.0;
+        skeleton_data.joint_position_right_shoulder.x = (skeleton.joints[JOINT_RIGHT_SHOULDER].proj.x - 0.5);
+        skeleton_data.joint_position_right_shoulder.y = (skeleton.joints[JOINT_RIGHT_SHOULDER].proj.y - 0.5);
+        skeleton_data.joint_position_right_shoulder.z = skeleton.joints[JOINT_RIGHT_SHOULDER].proj.z / 1000.0;
         PublishFrame("right_shoulder", skeleton.joints[JOINT_RIGHT_SHOULDER].real, skeleton.joints[JOINT_RIGHT_SHOULDER].orient);
 
-        skeleton_data.joint_position_right_elbow.x = skeleton.joints[JOINT_RIGHT_ELBOW].real.z / 1000.0;
-        skeleton_data.joint_position_right_elbow.y = skeleton.joints[JOINT_RIGHT_ELBOW].real.x / 1000.0;
-        skeleton_data.joint_position_right_elbow.z = skeleton.joints[JOINT_RIGHT_ELBOW].real.y / 1000.0;
+        skeleton_data.joint_position_right_elbow.x = (skeleton.joints[JOINT_RIGHT_ELBOW].proj.x - 0.5);
+        skeleton_data.joint_position_right_elbow.y = (skeleton.joints[JOINT_RIGHT_ELBOW].proj.y - 0.5);
+        skeleton_data.joint_position_right_elbow.z = skeleton.joints[JOINT_RIGHT_ELBOW].proj.z / 1000.0;
         PublishFrame("right_elbow", skeleton.joints[JOINT_RIGHT_ELBOW].real, skeleton.joints[JOINT_RIGHT_ELBOW].orient);
 
-        skeleton_data.joint_position_right_hand.x = skeleton.joints[JOINT_RIGHT_HAND].real.z / 1000.0;
-        skeleton_data.joint_position_right_hand.y = skeleton.joints[JOINT_RIGHT_HAND].real.x / 1000.0;
-        skeleton_data.joint_position_right_hand.z = skeleton.joints[JOINT_RIGHT_HAND].real.y / 1000.0;
+        skeleton_data.joint_position_right_hand.x = (skeleton.joints[JOINT_RIGHT_HAND].proj.x - 0.5);
+        skeleton_data.joint_position_right_hand.y = (skeleton.joints[JOINT_RIGHT_HAND].proj.y - 0.5);
+        skeleton_data.joint_position_right_hand.z = skeleton.joints[JOINT_RIGHT_HAND].proj.z / 1000.0;
         PublishFrame("right_hand", skeleton.joints[JOINT_RIGHT_HAND].real, skeleton.joints[JOINT_RIGHT_HAND].orient);
 
         // Hand:  open (0), grasping (1), waving (2)
@@ -917,7 +920,7 @@ namespace nuitrack_body_tracker
       Nuitrack::setConfigValue("Faces.ToUse", "true");
 
       //Options for debug
-      //Nuitrack::setConfigValue("Skeletonization.ActiveUsers", "1");
+      Nuitrack::setConfigValue("Skeletonization.ActiveUsers", "3");
       //Nuitrack::setConfigValue("DepthProvider.Mirror", "true");
       depth_frame_number_ = 0;
       color_frame_number_ = 0;
@@ -974,7 +977,7 @@ namespace nuitrack_body_tracker
       std::cout << "Nuitrack: SkeletonTracker::create()" << std::endl;
       skeletonTracker_ = tdv::nuitrack::SkeletonTracker::create();
       // Bind to event update skeleton tracker
-      skeletonTracker_->setNumActiveUsers(1);
+      skeletonTracker_->setNumActiveUsers(ACTIVE_USER_NUM);
       skeletonTracker_->connectOnUpdate(std::bind(
         &nuitrack_body_tracker_node::onSkeletonUpdate, this, std::placeholders::_1));
   
